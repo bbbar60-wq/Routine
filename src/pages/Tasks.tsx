@@ -379,7 +379,7 @@ export default function Tasks() {
         <div className="space-y-4">
           <Field label="Title" required error={formError && !form.title.trim() ? formError : undefined}>
             <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })}
-              placeholder="Run the virial-identity training" autoFocus />
+              placeholder="Run the next experiment" autoFocus />
           </Field>
 
           <div className="grid grid-cols-2 gap-3">
@@ -465,7 +465,7 @@ export default function Tasks() {
         <div className="space-y-4">
           <Field label="Name" required>
             <Input value={projectForm.name} onChange={(e) => setProjectForm({ ...projectForm, name: e.target.value })}
-              placeholder="PI-ConvRNN — droplet collision" autoFocus />
+              placeholder="Research project" autoFocus />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Area of life">

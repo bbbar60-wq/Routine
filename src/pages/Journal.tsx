@@ -288,7 +288,7 @@ export default function Journal() {
               </Field>
               <Field label="Title" className="col-span-2">
                 <Input value={draft.title ?? ''} onChange={(e) => setDraft({ ...draft, title: e.target.value })}
-                  placeholder="Found the closure bug" />
+                  placeholder="A good day’s work" />
               </Field>
             </div>
 

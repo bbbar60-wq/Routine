@@ -425,7 +425,7 @@ export default function Learning() {
           <div className="space-y-4">
             <Field label="Title" required>
               <Input value={courseDraft.title} onChange={(e) => setCourseDraft({ ...courseDraft, title: e.target.value })}
-                placeholder="Advanced CFD — multiphase flows" autoFocus />
+                placeholder="Machine Learning Specialization" autoFocus />
             </Field>
             <div className="grid grid-cols-2 gap-3">
               <Field label="Provider">
@@ -490,17 +490,17 @@ export default function Learning() {
               </Field>
               <Field label="Title" required className="col-span-3">
                 <Input value={readingDraft.title} onChange={(e) => setReadingDraft({ ...readingDraft, title: e.target.value })}
-                  placeholder="PhyCRNet: Physics-informed convolutional-recurrent network" autoFocus />
+                  placeholder="Attention Is All You Need" autoFocus />
               </Field>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <Field label="Authors">
                 <Input value={readingDraft.authors} onChange={(e) => setReadingDraft({ ...readingDraft, authors: e.target.value })}
-                  placeholder="Ren et al." />
+                  placeholder="Vaswani et al." />
               </Field>
               <Field label="Venue">
                 <Input value={readingDraft.venue} onChange={(e) => setReadingDraft({ ...readingDraft, venue: e.target.value })}
-                  placeholder="CMAME" />
+                  placeholder="NeurIPS" />
               </Field>
             </div>
             <div className="grid grid-cols-4 gap-3">
@@ -575,7 +575,7 @@ export default function Learning() {
             </Field>
             <Field label="Topic">
               <Input value={studyDraft.topic} onChange={(e) => setStudyDraft({ ...studyDraft, topic: e.target.value })}
-                placeholder="VOF interface capturing" />
+                placeholder="Numerical integration" />
             </Field>
             <Field label="Notes">
               <Textarea value={studyDraft.notes} onChange={(e) => setStudyDraft({ ...studyDraft, notes: e.target.value })}

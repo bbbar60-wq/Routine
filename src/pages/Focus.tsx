@@ -369,7 +369,7 @@ export default function Focus() {
           </div>
           <Field label="What are you working on?" hint="Optional — helps when you look back.">
             <Input value={starter.label} onChange={(e) => setStarter({ ...starter, label: e.target.value })}
-              placeholder="Virial residual derivation" />
+              placeholder="Analysing the last run" />
           </Field>
         </div>
       </Modal>

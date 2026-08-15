@@ -7,8 +7,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 const BASE = process.env.ROUTINE_BASE || 'http://127.0.0.1:5181';
-const EMAIL = process.env.SEED_EMAIL || 'rezabz2005@gmail.com';
-const PASSWORD = process.env.SEED_PASSWORD || 'routine2026';
+// Point these at whatever account the target server has; they must match the
+// values `npm run seed` was given.
+const EMAIL = process.env.SEED_EMAIL || 'you@example.com';
+const PASSWORD = process.env.SEED_PASSWORD || 'change-me-please';
 
 let cookies = '';
 let csrf = '';

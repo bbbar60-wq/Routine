@@ -49,27 +49,30 @@ npm run dev      # API on :5181 + Vite on :5180, hot reload  → http://127.0.0.
 npm run build && npm start    # one process, UI + API        → http://127.0.0.1:5181
 ```
 
-### Sign in
+### Your account
 
-Seeding creates one account with a **known, public default password** — it is
-written in this file and in `server/seed.mjs`:
+There is no default account and no default password. On a fresh install the app
+opens on **Set up your account** and you create your own — the first account
+made becomes the owner, and sign-up closes behind it.
 
-| | |
-|---|---|
-| email | `rezabz2005@gmail.com` |
-| password | `routine2026` |
-
-Change it in **Settings → Profile → Change password** the first time you sign
-in. That stores a scrypt hash and signs out every other session. Nothing is
-exposed in the meantime — the server only ever binds `127.0.0.1`, so it is not
-reachable from your network, let alone the internet — but a default password
-should not stay a default.
-
-To seed with your own credentials instead:
+Optionally, load ~140 days of invented demo data first, so the charts have
+something to show while you look around:
 
 ```bash
-SEED_EMAIL=you@example.com SEED_NAME=You SEED_PASSWORD=something-better npm run seed
+# PowerShell
+$env:SEED_PASSWORD='pick-a-password'; npm run seed
+
+# bash
+SEED_PASSWORD=pick-a-password npm run seed
 ```
+
+`SEED_PASSWORD` is required and must be at least 8 characters — there is
+deliberately no fallback, because a password committed to a repository is a
+password everyone with the repository knows. `SEED_EMAIL` (default
+`you@example.com`) and `SEED_NAME` (default `You`) are optional.
+
+The demo content is fictional. `npm run reset` wipes it and reseeds; **Settings
+→ Erase all my data** clears everything but keeps your account.
 
 If you'd rather start from an empty database, delete `data/routine.db*` and
 reload — the first account you create becomes the owner. After that, sign-up is

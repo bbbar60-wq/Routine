@@ -61,7 +61,7 @@ export default function Login() {
               <Field label="Name" required>
                 <Input
                   value={name} onChange={(e) => setName(e.target.value)}
-                  autoComplete="name" placeholder="Reza" required
+                  autoComplete="name" placeholder="Your name" required
                 />
               </Field>
             )}

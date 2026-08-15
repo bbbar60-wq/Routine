@@ -1,9 +1,15 @@
 /**
- * Seeds a working account with ~140 days of plausible history so every chart
- * and streak in the app has something real to render.
+ * Optional demo data: ~140 days of plausible history, so every chart and
+ * streak has something to render while you are trying the app out.
  *
- *   node server/seed.mjs            # seed only if the database is empty
- *   node server/seed.mjs --reset    # wipe this user's data and reseed
+ * You do NOT need this to use Routine. Starting the server creates an empty
+ * database and the app walks you through making your own account.
+ *
+ *   SEED_PASSWORD=... node server/seed.mjs            # seed if empty
+ *   SEED_PASSWORD=... node server/seed.mjs --reset    # wipe and reseed
+ *
+ * The content below is invented. It is shaped to look like a real life so the
+ * charts are worth looking at — it is not anyone's actual data.
  */
 import { db, all, get, run, tx, nowIso } from './db.mjs';
 import { hashPassword } from './auth.mjs';
@@ -11,9 +17,36 @@ import { todayIso, addDays, weekdayOf, dateRange, monthKey } from './lib/dates.m
 
 const RESET = process.argv.includes('--reset');
 
-const EMAIL = process.env.SEED_EMAIL || 'rezabz2005@gmail.com';
-const NAME = process.env.SEED_NAME || 'Reza';
-const PASSWORD = process.env.SEED_PASSWORD || 'routine2026';
+const EMAIL = process.env.SEED_EMAIL || 'you@example.com';
+const NAME = process.env.SEED_NAME || 'You';
+const PASSWORD = process.env.SEED_PASSWORD;
+
+// Deliberately no default. A password baked into a repo is a password everyone
+// with the repo knows, and this account owns everything in the app.
+if (!PASSWORD) {
+  console.error(`
+  SEED_PASSWORD is required.
+
+  Pick a password for the demo account, then run:
+
+      SEED_PASSWORD=your-password npm run seed
+
+  On Windows PowerShell:
+
+      $env:SEED_PASSWORD='your-password'; npm run seed
+
+  SEED_EMAIL (default ${EMAIL}) and SEED_NAME (default ${NAME}) are optional.
+
+  You can also skip seeding entirely — just start the app and create your
+  own account when it asks.
+`);
+  process.exit(1);
+}
+
+if (PASSWORD.length < 8) {
+  console.error('\n  SEED_PASSWORD must be at least 8 characters.\n');
+  process.exit(1);
+}
 
 /* Deterministic PRNG so reseeding produces the same history. */
 let seedState = 20260815;
@@ -61,11 +94,11 @@ function wipe(userId) {
 function seed(userId) {
   /* ---------------- projects ---------------- */
   const projects = [
-    ['PI-ConvRNN — droplet collision', 'research', 'active', 'Physics-informed ConvRNN for two-droplet VOF collision. Hard constraints, blind (no CFD data). Target: capillary oscillation after merge.', addDays(TODAY, 46)],
-    ['Odaroo — online pharmacy', 'work', 'active', 'Custom rebuild of the Dr. Aminian pharmacy storefront: Next.js BFF + Django API.', addDays(TODAY, 24)],
-    ['Airfoil Simulator', 'work', 'active', 'Hess–Smith panel method demo. Page 3 workspace still unspecified.', addDays(TODAY, 61)],
-    ['PEXI', 'work', 'paused', 'Django + React baseline stack.', null],
-    ['Thesis & papers', 'research', 'active', 'Writing up the coalescence-regime results.', addDays(TODAY, 88)],
+    ['Research project', 'research', 'active', 'The long-running one: experiments, analysis, and a write-up at the end.', addDays(TODAY, 46)],
+    ['Client website', 'work', 'active', 'Front-end plus API for a paying client. Milestone-based.', addDays(TODAY, 24)],
+    ['Side project', 'work', 'active', 'A small app built in spare evenings.', addDays(TODAY, 61)],
+    ['Internal tooling', 'work', 'paused', 'Scripts and dashboards for my own workflow. On hold.', null],
+    ['Writing', 'research', 'active', 'Turning the results into something readable.', addDays(TODAY, 88)],
   ];
   const projectIds = projects.map(([name, domain, status, description, deadline], i) =>
     run(
@@ -73,24 +106,24 @@ function seed(userId) {
       userId, name, domain, status, description, deadline, i, nowIso()
     ).lastInsertRowid
   );
-  const [PI, ODAROO, AIRFOIL, PEXI, THESIS] = projectIds;
+  const [RESEARCH, CLIENT, SIDE, TOOLING, WRITING] = projectIds;
 
   /* ---------------- tasks ---------------- */
   const tasks = [
-    ['Run virial-identity training on GPU', PI, 'research', 1, 'doing', addDays(TODAY, 1), 240],
-    ['Re-validate impulse low-pass at sigma=8', PI, 'research', 1, 'todo', addDays(TODAY, 2), 90],
-    ['Write up coalescence regime results', THESIS, 'research', 2, 'todo', addDays(TODAY, 9), 300],
-    ['Digitise Qian & Law Fig. 4 cases', THESIS, 'research', 3, 'todo', addDays(TODAY, 14), 120],
-    ['Fix category product_count on nested nodes', ODAROO, 'work', 1, 'todo', TODAY, 60],
-    ['Playwright: RTL + touch-target sweep', ODAROO, 'work', 2, 'doing', addDays(TODAY, 3), 120],
-    ['Wire admin order pipeline to Django', ODAROO, 'work', 2, 'todo', addDays(TODAY, 5), 180],
-    ['Ship sitemap + robots to staging', ODAROO, 'work', 3, 'todo', addDays(TODAY, 8), 45],
-    ['Spec page 3 workspace', AIRFOIL, 'work', 2, 'todo', addDays(TODAY, 12), 90],
-    ['Replace placeholder reference data', AIRFOIL, 'work', 3, 'todo', addDays(TODAY, 20), 120],
+    ['Run the next experiment', RESEARCH, 'research', 1, 'doing', addDays(TODAY, 1), 240],
+    ['Check the results from the last run', RESEARCH, 'research', 1, 'todo', addDays(TODAY, 2), 90],
+    ['Draft the results section', WRITING, 'research', 2, 'todo', addDays(TODAY, 9), 300],
+    ['Collect reference data for comparison', WRITING, 'research', 3, 'todo', addDays(TODAY, 14), 120],
+    ['Fix the bug reported yesterday', CLIENT, 'work', 1, 'todo', TODAY, 60],
+    ['Accessibility and mobile pass', CLIENT, 'work', 2, 'doing', addDays(TODAY, 3), 120],
+    ['Wire the admin panel to the API', CLIENT, 'work', 2, 'todo', addDays(TODAY, 5), 180],
+    ['Deploy to staging', CLIENT, 'work', 3, 'todo', addDays(TODAY, 8), 45],
+    ['Decide what the next screen does', SIDE, 'work', 2, 'todo', addDays(TODAY, 12), 90],
+    ['Replace the placeholder data', SIDE, 'work', 3, 'todo', addDays(TODAY, 20), 120],
     ['Renew gym membership', null, 'fitness', 2, 'todo', addDays(TODAY, 4), 20],
     ['Book dentist appointment', null, 'health', 3, 'todo', addDays(TODAY, 6), 15],
-    ['Read Tanguy 2005 level-set paper', THESIS, 'learning', 2, 'todo', addDays(TODAY, 2), 90],
-    ['Update PEXI dependencies', PEXI, 'work', 4, 'todo', null, 60],
+    ['Read the paper I saved last week', WRITING, 'learning', 2, 'todo', addDays(TODAY, 2), 90],
+    ['Update dependencies', TOOLING, 'work', 4, 'todo', null, 60],
     ['Plan next quarter goals', null, 'personal', 3, 'todo', addDays(TODAY, 7), 45],
   ];
   for (const [title, projectId, domain, priority, status, due, est] of tasks) {
@@ -109,10 +142,10 @@ function seed(userId) {
       userId,
       pick(projectIds),
       pick([
-        'Fix rupture sub-cycling regression', 'Review PR comments', 'Refactor serializer',
-        'Debug mass-drift certificate', 'Answer client email', 'Update seed script',
-        'Rewrite category filter', 'Add axe a11y checks', 'Tune LR schedule',
-        'Patch OTP throttle bucket', 'Profile field solve', 'Write unit test for streaks',
+        'Fix a failing test', 'Review pull request comments', 'Refactor a module',
+        'Track down a regression', 'Answer client email', 'Update the build script',
+        'Rewrite the list filter', 'Add accessibility checks', 'Tune parameters',
+        'Patch the rate limiter', 'Profile the slow path', 'Write unit tests',
       ]),
       pick(['work', 'research', 'learning']),
       int(1, 4), date, int(20, 180), `${date}T${String(int(9, 22)).padStart(2, '0')}:12:00.000Z`, nowIso()
@@ -161,19 +194,19 @@ function seed(userId) {
 
   /* ---------------- focus sessions ---------------- */
   const focusLabels = {
-    [PI]: ['Training run analysis', 'Virial residual derivation', 'Rehearsal gate debugging', 'Reading fields.h5 diagnostics'],
-    [ODAROO]: ['Category page filters', 'BFF route handlers', 'Playwright suite', 'Django serializers'],
-    [AIRFOIL]: ['Panel solver tuning', 'Page 2 carousel motion', 'Worker token plumbing'],
-    [THESIS]: ['Results section draft', 'Figure preparation', 'Literature notes'],
-    [PEXI]: ['Dependency sweep'],
+    [RESEARCH]: ['Analysing the last run', 'Working through the maths', 'Debugging the pipeline', 'Reading diagnostics'],
+    [CLIENT]: ['Building the listing page', 'API route handlers', 'Test suite', 'Data layer'],
+    [SIDE]: ['Tuning the core logic', 'Page transitions', 'Background worker'],
+    [WRITING]: ['Results section draft', 'Preparing figures', 'Literature notes'],
+    [TOOLING]: ['Dependency sweep'],
   };
   for (const date of DAYS) {
     const dow = weekdayOf(date);
     const isFriday = dow === 5;                       // Iranian weekend
     const blocks = isFriday ? int(0, 2) : int(2, 5);
     for (let b = 0; b < blocks; b++) {
-      const projectId = pick([PI, PI, PI, ODAROO, ODAROO, AIRFOIL, THESIS, PEXI]);
-      const domain = projectId === PI || projectId === THESIS ? 'research' : 'work';
+      const projectId = pick([RESEARCH, RESEARCH, RESEARCH, CLIENT, CLIENT, SIDE, WRITING, TOOLING]);
+      const domain = projectId === RESEARCH || projectId === WRITING ? 'research' : 'work';
       const minutes = int(35, 115);
       const hour = 8 + b * 3 + int(0, 2);
       const startedAt = `${date}T${String(Math.min(hour, 22)).padStart(2, '0')}:${String(int(0, 55)).padStart(2, '0')}:00.000Z`;
@@ -280,10 +313,10 @@ function seed(userId) {
 
   /* ---------------- learning ---------------- */
   const courses = [
-    ['Advanced CFD — multiphase flows', 'Sharif OCW', 'active', 62, 100, 'lessons', addDays(TODAY, 55)],
-    ['Deep Learning Specialization', 'Coursera', 'active', 78, 100, 'lessons', addDays(TODAY, 30)],
-    ['IELTS Academic prep', 'Self-study', 'active', 41, 100, 'lessons', addDays(TODAY, 75)],
-    ['System Design for Web', 'YouTube', 'paused', 25, 100, 'lessons', null],
+    ['Numerical Methods', 'University OCW', 'active', 62, 100, 'lessons', addDays(TODAY, 55)],
+    ['Machine Learning Specialization', 'Coursera', 'active', 78, 100, 'lessons', addDays(TODAY, 30)],
+    ['Language exam preparation', 'Self-study', 'active', 41, 100, 'lessons', addDays(TODAY, 75)],
+    ['System Design', 'YouTube', 'paused', 25, 100, 'lessons', null],
   ];
   const courseIds = courses.map(([title, provider, status, progress, total, unit, target]) =>
     run(
@@ -296,21 +329,23 @@ function seed(userId) {
     run(
       'INSERT INTO study_sessions (user_id, course_id, date, minutes, topic, notes) VALUES (?,?,?,?,?,\'\')',
       userId, pick(courseIds), date, int(25, 105),
-      pick(['VOF interface capturing', 'Backprop through time', 'Reading comprehension', 'Surface tension models', 'Attention mechanisms', 'Writing task 2', 'Caching strategies'])
+      pick(['Numerical integration', 'Backpropagation', 'Reading comprehension', 'Optimisation methods', 'Attention mechanisms', 'Essay practice', 'Caching strategies'])
     );
   }
 
+  // Widely-read classics on purpose: enough to make the library look real
+  // without implying anything about who is using the app.
   const readings = [
-    ['paper', 'Numerical simulation of binary droplet collision using LBM', 'Bijarchi & Rahimian', 'MME', 2014, 'done', 5, 12, 12],
-    ['paper', 'A level-set method for computing droplet collisions', 'Tanguy & Berlemont', 'Int. J. Multiphase Flow', 2005, 'done', 5, 24, 24],
-    ['paper', 'Regimes of coalescence and separation in droplet collision', 'Qian & Law', 'JFM', 1997, 'done', 5, 30, 30],
-    ['paper', 'PhyCRNet: Physics-informed convolutional-recurrent network', 'Ren et al.', 'CMAME', 2022, 'reading', 4, 18, 28],
-    ['paper', 'Physics-informed neural networks', 'Raissi, Perdikaris & Karniadakis', 'JCP', 2019, 'done', 4, 26, 26],
-    ['paper', 'Fourier Neural Operator for PDEs', 'Li et al.', 'ICLR', 2021, 'reading', 4, 9, 22],
+    ['paper', 'Attention Is All You Need', 'Vaswani et al.', 'NeurIPS', 2017, 'done', 5, 15, 15],
+    ['paper', 'Adam: A Method for Stochastic Optimization', 'Kingma & Ba', 'ICLR', 2015, 'done', 5, 15, 15],
+    ['paper', 'Deep Residual Learning for Image Recognition', 'He et al.', 'CVPR', 2016, 'done', 5, 12, 12],
+    ['paper', 'Batch Normalization', 'Ioffe & Szegedy', 'ICML', 2015, 'reading', 4, 6, 11],
+    ['paper', 'Dropout: A Simple Way to Prevent Overfitting', 'Srivastava et al.', 'JMLR', 2014, 'done', 4, 30, 30],
+    ['paper', 'Language Models are Few-Shot Learners', 'Brown et al.', 'NeurIPS', 2020, 'reading', 4, 22, 75],
     ['book', 'Designing Data-Intensive Applications', 'Martin Kleppmann', "O'Reilly", 2017, 'reading', 5, 214, 590],
     ['book', 'Refactoring UI', 'Wathan & Schoger', 'Self-published', 2018, 'done', 5, 150, 150],
     ['book', 'Deep Work', 'Cal Newport', 'Grand Central', 2016, 'done', 4, 296, 296],
-    ['paper', 'An interface-compression scheme for VOF', 'Weller', 'OpenFOAM tech report', 2008, 'queued', null, 0, 14],
+    ['paper', 'A survey of the literature', 'Various', 'Journal', 2023, 'queued', null, 0, 14],
   ];
   for (const [kind, title, authors, venue, year, status, rating, progress, pages] of readings) {
     run(
@@ -344,17 +379,17 @@ function seed(userId) {
   for (const m of months) {
     run(
       'INSERT INTO transactions (user_id, project_id, date, type, category, amount, currency, account, note) VALUES (?,?,?,\'income\',\'client\',?,\'IRT\',\'main\',?)',
-      userId, ODAROO, `${m}-05`, Math.round(between(85_000_000, 130_000_000)), 'Odaroo milestone'
+      userId, CLIENT, `${m}-05`, Math.round(between(85_000_000, 130_000_000)), 'Client milestone'
     );
     if (chance(0.6)) {
       run(
         'INSERT INTO transactions (user_id, project_id, date, type, category, amount, currency, account, note) VALUES (?,?,?,\'income\',\'freelance\',?,\'IRT\',\'main\',?)',
-        userId, AIRFOIL, `${m}-19`, Math.round(between(25_000_000, 60_000_000)), 'Airfoil demo work'
+        userId, SIDE, `${m}-19`, Math.round(between(25_000_000, 60_000_000)), 'Freelance work'
       );
     }
     run(
       'INSERT INTO transactions (user_id, project_id, date, type, category, amount, currency, account, note) VALUES (?,NULL,?,\'income\',\'scholarship\',?,\'IRT\',\'main\',?)',
-      userId, `${m}-12`, 22_000_000, 'Research stipend'
+      userId, `${m}-12`, 22_000_000, 'Monthly stipend'
     );
   }
   for (const [category, limit] of [['food', 90_000_000], ['transport', 20_000_000], ['entertainment', 15_000_000], ['software', 25_000_000]]) {
@@ -365,12 +400,12 @@ function seed(userId) {
   const year = TODAY.slice(0, 4);
   const quarter = `${year}-Q${Math.floor((Number(TODAY.slice(5, 7)) - 1) / 3) + 1}`;
   const goalRows = [
-    ['Submit the droplet-collision paper', 'research', 'year', year, 1, 0.65, 'paper', 'active'],
-    ['Ship Odaroo to production', 'work', 'quarter', quarter, 100, 78, '%', 'active'],
+    ['Submit a paper', 'research', 'year', year, 1, 0.65, 'paper', 'active'],
+    ['Ship the client project', 'work', 'quarter', quarter, 100, 78, '%', 'active'],
     ['Bench press 90 kg for 5', 'fitness', 'year', year, 90, 78, 'kg', 'active'],
     ['Read 24 papers', 'learning', 'year', year, 24, 15, 'papers', 'active'],
     ['Average 7.5 h sleep', 'health', 'quarter', quarter, 7.5, 6.9, 'h', 'active'],
-    ['Save 400M Toman', 'finance', 'year', year, 400_000_000, 236_000_000, 'IRT', 'active'],
+    ['Build up savings', 'finance', 'year', year, 400_000_000, 236_000_000, 'IRT', 'active'],
     ['Run 300 km', 'sports', 'year', year, 300, 168, 'km', 'active'],
     ['Journal every day', 'personal', 'quarter', quarter, 90, 67, 'days', 'active'],
   ];
@@ -383,10 +418,10 @@ function seed(userId) {
 
   /* ---------------- journal ---------------- */
   const entries = [
-    ['Found the closure bug', 'The film closure was running at half its advertised reach the whole campaign. Four- and six-cell test films sat inside the working range, so it never showed up. Same class of mistake as c_comp — a test that overrides the parameter cannot validate the parameter.', 'Closure fix landed', 'Good tools. The diagnostic script paid for itself ten times over.', 4],
-    ['Odaroo rate limiting', 'Every browser request shared one rate-limit bucket because Django saw the BFF as a single IP. The test suite caught it, not me. Worth remembering that a proxy collapses identity unless you tell it not to.', 'Fixed throttle identity', 'A test suite that finds real bugs on day one.', 4],
+    ['Found the bug', 'Spent most of the afternoon on something that turned out to be one wrong constant. The test that should have caught it was overriding the very parameter it was meant to check. Worth remembering: a test that sets a value cannot validate that value.', 'Bug fixed', 'Good tools. The diagnostic script paid for itself ten times over.', 4],
+    ['Caught by the tests', 'The test suite found a real problem on its first proper run — something I would not have noticed until it hit production. Worth the afternoon it took to set up.', 'Test suite earned its keep', 'Work that checks itself.', 4],
     ['Slow day', 'Low energy, poor sleep. Managed one deep block and gave up on the second. Rest is part of it.', '', 'Quiet evening, tea, no screens after eleven.', 2],
-    ['Merged at last', 'The droplets merged at t*=0.96 with 86% of the kinetic energy. First time the whole approach-impact-merge chain worked end to end. Still no oscillation, but the failure is now precisely located.', 'Best run of the campaign', 'Months of work finally showing.', 5],
+    ['It finally worked', 'First time the whole thing ran end to end without intervention. Still rough in places, but the hard part is behind me and what is left is tuning.', 'Best result so far', 'Months of work finally showing.', 5],
     ['Gym PR', 'Hit 78 for 5 on bench. Slow and steady. Legs felt strong after the deload week.', 'Bench 78x5', 'A body that keeps showing up.', 5],
   ];
   entries.forEach((e, i) => {
@@ -404,7 +439,7 @@ function seed(userId) {
       userId, date,
       pick(['Steady', 'Long day', 'Good session', 'Reset', 'Shipped something']),
       pick([
-        'Three deep blocks, one on the rehearsal gate. Progress feels real again.',
+        'Three deep blocks. Progress feels real again.',
         'Client call ran long. Caught up in the evening.',
         'Trained, studied, wrote. The kind of day the system is meant to produce.',
         'Debugging all afternoon. Found it eventually.',

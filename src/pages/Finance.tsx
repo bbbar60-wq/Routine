@@ -375,7 +375,7 @@ export default function Finance() {
 
             <Field label="Note">
               <Textarea value={draft.note} onChange={(e) => setDraft({ ...draft, note: e.target.value })}
-                placeholder="Odaroo milestone 3" className="min-h-[60px]" />
+                placeholder="Client milestone 3" className="min-h-[60px]" />
             </Field>
           </div>
         )}

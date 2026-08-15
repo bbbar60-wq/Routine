@@ -87,12 +87,11 @@ if (-not (Test-Path (Join-Path $root 'node_modules\vite'))) {
 }
 
 # ------------------------------------------------------------ database
-if (-not (Test-Path (Join-Path $root 'data\routine.db'))) {
-  Say 'Setting up the database...' 'Yellow'
-  & $node --disable-warning=ExperimentalWarning (Join-Path $root 'server\seed.mjs')
-  if ($LASTEXITCODE -ne 0) { Fail 'Could not create the database.' }
-  Write-Host ''
-}
+# Nothing to do: starting the server creates the database and its schema. On a
+# brand-new install the app opens on its own "set up your account" screen, so
+# there is no shared default password anywhere. Demo data stays opt-in via
+# `npm run seed`.
+$firstRun = -not (Test-Path (Join-Path $root 'data\routine.db'))
 
 # --------------------------------------------------------------- build
 if ($Mode -eq 'prod') {
@@ -160,6 +159,12 @@ if (-not $ready) {
 }
 
 Say 'Ready.' 'Green'
+if ($firstRun) {
+  Write-Host ''
+  Say 'This is a fresh install — the app will ask you to create your account.' 'Yellow'
+  Say 'Want demo data to look at first? Stop it and run:' 'DarkGray'
+  Say '    $env:SEED_PASSWORD=''your-password''; npm run seed' 'DarkGray'
+}
 Start-Process $Url
 
 if ($Mode -eq 'dev') {

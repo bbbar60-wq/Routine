@@ -36,11 +36,18 @@ jobs:
         run: npm run build
 
       - name: Seed a throwaway database
+        env:
+          SEED_EMAIL: ci@example.com
+          SEED_NAME: CI
+          SEED_PASSWORD: ci-test-password
         run: npm run seed
 
       # Start and test in one step: a server backgrounded in an earlier step
       # is not reliably still around in a later one.
       - name: API tests
+        env:
+          SEED_EMAIL: ci@example.com
+          SEED_PASSWORD: ci-test-password
         run: |
           NODE_ENV=production node --disable-warning=ExperimentalWarning server/index.mjs &
           server=$!
