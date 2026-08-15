@@ -1,0 +1,29 @@
+# Normalise to LF in the repo, check out native on each platform.
+* text=auto eol=lf
+
+# ------------------------------------------------------------- Windows
+# These are the launchers behind the desktop icon. WScript and PowerShell
+# are happiest with CRLF, and a .vbs checked out with LF endings can fail
+# outright — so pin them regardless of platform.
+*.ps1 text eol=crlf
+*.vbs text eol=crlf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# -------------------------------------------------------------- binary
+*.ttf  binary
+*.otf  binary
+*.woff binary
+*.woff2 binary
+*.ico  binary
+*.png  binary
+*.jpg  binary
+*.webp binary
+*.db   binary
+
+# ----------------------------------------------------------- generated
+package-lock.json linguist-generated=true -diff
+
+# Vendored fonts are not this project's source; keep them out of the
+# language breakdown.
+public/fonts/** linguist-vendored=true

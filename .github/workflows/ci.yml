@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Only the newest run per branch matters.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Typecheck, build and test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # node:sqlite stops needing a flag in 22.13, and the whole backend
+          # is built on it.
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Seed a throwaway database
+        run: npm run seed
+
+      # Start and test in one step: a server backgrounded in an earlier step
+      # is not reliably still around in a later one.
+      - name: API tests
+        run: |
+          NODE_ENV=production node --disable-warning=ExperimentalWarning server/index.mjs &
+          server=$!
+
+          for _ in $(seq 1 60); do
+            if curl -sf http://127.0.0.1:5181/api/auth/status > /dev/null 2>&1; then
+              echo "server is up"
+              break
+            fi
+            sleep 0.5
+          done
+
+          if ! curl -sf http://127.0.0.1:5181/api/auth/status > /dev/null 2>&1; then
+            echo "::error::the server never came up"
+            kill $server 2>/dev/null || true
+            exit 1
+          fi
+
+          set +e
+          npm test
+          status=$?
+          set -e
+
+          kill $server 2>/dev/null || true
+          exit $status
+
+      - name: Check nothing personal is tracked
+        run: |
+          leaked=$(git ls-files | grep -E '(^|/)(data/|\.secret$|.*\.db$)' || true)
+          if [ -n "$leaked" ]; then
+            echo "::error::personal data is tracked in git:"
+            echo "$leaked"
+            exit 1
+          fi
+          echo "clean — no database or secret in the index"

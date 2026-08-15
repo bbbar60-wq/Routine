@@ -1,0 +1,454 @@
+@import 'tailwindcss';
+
+/* ==================================================================
+   Routine — design tokens
+   Three layers, per the design-system skill:
+     primitive (raw ramps) -> semantic (purpose) -> component.
+   Components never reference a raw hex.
+   ================================================================== */
+
+/* ---------------------------- typeface ---------------------------- */
+
+@font-face {
+  font-family: 'Instrument Sans';
+  src: url('/fonts/InstrumentSans-Regular.ttf') format('truetype');
+  font-weight: 400 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Instrument Sans';
+  src: url('/fonts/InstrumentSans-Bold.ttf') format('truetype');
+  font-weight: 600 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Instrument Sans';
+  src: url('/fonts/InstrumentSans-Italic.ttf') format('truetype');
+  font-weight: 400 500;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Geist Mono';
+  src: url('/fonts/GeistMono-Regular.ttf') format('truetype');
+  font-weight: 400 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Geist Mono';
+  src: url('/fonts/GeistMono-Bold.ttf') format('truetype');
+  font-weight: 600 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ------------------------ primitive tokens ------------------------ */
+
+:root {
+  /* Domain hues. Both columns are selected for their own surface and were
+     run through the data-viz validator: every adjacent pair clears the CVD
+     and normal-vision floors, and every step clears 3:1 on its surface. */
+  --hue-work-l: #2a78d6;      --hue-work-d: #3987e5;
+  --hue-fitness-l: #d4551f;   --hue-fitness-d: #d95926;
+  --hue-health-l: #0f8f63;    --hue-health-d: #199e70;
+  --hue-learning-l: #b07800;  --hue-learning-d: #c98500;
+  --hue-personal-l: #cf4b83;  --hue-personal-d: #d55181;
+  --hue-finance-l: #008300;   --hue-finance-d: #008300;
+  --hue-research-l: #4a3aa7;  --hue-research-d: #9085e9;
+  --hue-sports-l: #d13b3a;    --hue-sports-d: #e66767;
+
+  /* Status ramp — reserved, never reused as a series colour. */
+  --status-good: #0ca30c;
+  --status-warning: #fab219;
+  --status-serious: #ec835a;
+  --status-critical: #d03b3b;
+
+  /* Sequential ramp (single hue, light -> dark) for magnitude encodings. */
+  --seq-100: #cde2fb; --seq-200: #9ec5f4; --seq-300: #6da7ec;
+  --seq-400: #3987e5; --seq-500: #256abf; --seq-600: #184f95; --seq-700: #0d366b;
+
+  /* Geometry */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 999px;
+
+  /* Motion — 150-300ms, meaning-carrying only. */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 320ms;
+
+  /* Type */
+  --font-sans: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
+}
+
+/* --------------- semantic tokens — light (default) --------------- */
+
+:root {
+  color-scheme: light;
+
+  --canvas: #f4f5f8;
+  --surface: #ffffff;          /* the validated light chart surface */
+  --surface-raised: #ffffff;
+  --surface-sunken: #eceef3;
+  --surface-hover: #f6f7fa;
+  --surface-active: #eef0f5;
+
+  --border: #e2e5ec;
+  --border-strong: #ccd2de;
+  --border-focus: #2a78d6;
+
+  --ink: #0f1420;
+  --ink-secondary: #47536a;
+  --ink-muted: #5d6779;        /* clears 4.5:1 on every light surface, sunken included */
+  --ink-inverse: #ffffff;
+  --ink-on-accent: #ffffff;
+
+  --accent: #131824;           /* chrome stays monochrome; colour is for data */
+  --accent-hover: #262d3d;
+  --accent-ring: #2a78d6;
+
+  --grid: #eaecf1;
+  --axis: #cbd1dc;
+
+  --shadow-sm: 0 1px 2px rgb(15 20 32 / 0.06), 0 1px 1px rgb(15 20 32 / 0.04);
+  --shadow-md: 0 4px 12px rgb(15 20 32 / 0.08), 0 1px 3px rgb(15 20 32 / 0.06);
+  --shadow-lg: 0 12px 32px rgb(15 20 32 / 0.12), 0 4px 10px rgb(15 20 32 / 0.06);
+  --shadow-pop: 0 20px 60px rgb(15 20 32 / 0.18);
+
+  --domain-work: var(--hue-work-l);
+  --domain-fitness: var(--hue-fitness-l);
+  --domain-health: var(--hue-health-l);
+  --domain-learning: var(--hue-learning-l);
+  --domain-personal: var(--hue-personal-l);
+  --domain-finance: var(--hue-finance-l);
+  --domain-research: var(--hue-research-l);
+  --domain-sports: var(--hue-sports-l);
+
+  /* Status text needs 4.5:1 on a light surface — the badge hues do not. */
+  --status-good-text: #056b05;
+  --status-warning-text: #8a5a00;
+  --status-serious-text: #a3421a;
+  --status-critical-text: #b4262b;
+
+  --heat-0: #e9ebf1;
+  --heat-1: #b9d4f4;
+  --heat-2: #7aaeea;
+  --heat-3: #3d86dc;
+  --heat-4: #1a5cae;
+}
+
+/* ---------------------- semantic tokens — dark ---------------------- */
+
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme='light'])) {
+    color-scheme: dark;
+
+    --canvas: #0a0c11;
+    --surface: #12151e;        /* the validated dark chart surface */
+    --surface-raised: #191d29;
+    --surface-sunken: #080a0e;
+    --surface-hover: #1c2130;
+    --surface-active: #222839;
+
+    --border: #262b39;
+    --border-strong: #353c4e;
+    --border-focus: #3987e5;
+
+    --ink: #e9edf5;
+    --ink-secondary: #a9b3c6;
+    --ink-muted: #808b9e;
+    --ink-inverse: #0a0c11;
+    --ink-on-accent: #0a0c11;
+
+    --accent: #e9edf5;
+    --accent-hover: #ffffff;
+    --accent-ring: #3987e5;
+
+    --grid: #1e2331;
+    --axis: #333a4a;
+
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+    --shadow-md: 0 4px 14px rgb(0 0 0 / 0.45), 0 1px 3px rgb(0 0 0 / 0.3);
+    --shadow-lg: 0 14px 40px rgb(0 0 0 / 0.55), 0 4px 12px rgb(0 0 0 / 0.35);
+    --shadow-pop: 0 24px 70px rgb(0 0 0 / 0.65);
+
+    --domain-work: var(--hue-work-d);
+    --domain-fitness: var(--hue-fitness-d);
+    --domain-health: var(--hue-health-d);
+    --domain-learning: var(--hue-learning-d);
+    --domain-personal: var(--hue-personal-d);
+    --domain-finance: var(--hue-finance-d);
+    --domain-research: var(--hue-research-d);
+    --domain-sports: var(--hue-sports-d);
+
+    --status-good-text: #35c035;
+    --status-warning-text: #fab219;
+    --status-serious-text: #ec835a;
+    --status-critical-text: #ef6a6a;
+
+    --heat-0: #171b26;
+    --heat-1: #12395f;
+    --heat-2: #17568f;
+    --heat-3: #2679c9;
+    --heat-4: #56a1f0;
+  }
+}
+
+/* The explicit toggle must win over the OS setting, in both directions. */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --canvas: #0a0c11;
+  --surface: #12151e;
+  --surface-raised: #191d29;
+  --surface-sunken: #080a0e;
+  --surface-hover: #1c2130;
+  --surface-active: #222839;
+
+  --border: #262b39;
+  --border-strong: #353c4e;
+  --border-focus: #3987e5;
+
+  --ink: #e9edf5;
+  --ink-secondary: #a9b3c6;
+  --ink-muted: #808b9e;
+  --ink-inverse: #0a0c11;
+  --ink-on-accent: #0a0c11;
+
+  --accent: #e9edf5;
+  --accent-hover: #ffffff;
+  --accent-ring: #3987e5;
+
+  --grid: #1e2331;
+  --axis: #333a4a;
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-md: 0 4px 14px rgb(0 0 0 / 0.45), 0 1px 3px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 14px 40px rgb(0 0 0 / 0.55), 0 4px 12px rgb(0 0 0 / 0.35);
+  --shadow-pop: 0 24px 70px rgb(0 0 0 / 0.65);
+
+  --domain-work: var(--hue-work-d);
+  --domain-fitness: var(--hue-fitness-d);
+  --domain-health: var(--hue-health-d);
+  --domain-learning: var(--hue-learning-d);
+  --domain-personal: var(--hue-personal-d);
+  --domain-finance: var(--hue-finance-d);
+  --domain-research: var(--hue-research-d);
+  --domain-sports: var(--hue-sports-d);
+
+  --status-good-text: #35c035;
+  --status-warning-text: #fab219;
+  --status-serious-text: #ec835a;
+  --status-critical-text: #ef6a6a;
+
+  --heat-0: #171b26;
+  --heat-1: #12395f;
+  --heat-2: #17568f;
+  --heat-3: #2679c9;
+  --heat-4: #56a1f0;
+}
+
+/* -------------------- Tailwind theme bridge -------------------- */
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-raised: var(--surface-raised);
+  --color-sunken: var(--surface-sunken);
+  --color-hover: var(--surface-hover);
+  --color-active: var(--surface-active);
+
+  --color-line: var(--border);
+  --color-line-strong: var(--border-strong);
+
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-secondary);
+  --color-ink-3: var(--ink-muted);
+  --color-ink-inverse: var(--ink-inverse);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-on-accent: var(--ink-on-accent);
+
+  --color-good: var(--status-good);
+  --color-warn: var(--status-warning);
+  --color-serious: var(--status-serious);
+  --color-critical: var(--status-critical);
+
+  --color-good-text: var(--status-good-text);
+  --color-warn-text: var(--status-warning-text);
+  --color-critical-text: var(--status-critical-text);
+
+  --color-work: var(--domain-work);
+  --color-fitness: var(--domain-fitness);
+  --color-health: var(--domain-health);
+  --color-learning: var(--domain-learning);
+  --color-personal: var(--domain-personal);
+  --color-finance: var(--domain-finance);
+  --color-research: var(--domain-research);
+  --color-sports: var(--domain-sports);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+
+  --radius-xs: var(--radius-xs);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-pop: var(--shadow-pop);
+
+  --ease-out: var(--ease-out);
+  --ease-spring: var(--ease-spring);
+}
+
+/* ---------------------------- base ---------------------------- */
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scrollbar-color: var(--border-strong) transparent;
+  }
+
+  body {
+    margin: 0;
+    background: var(--canvas);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 0.875rem;         /* 14px — dashboard density */
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-synthesis-weight: none;
+  }
+
+  h1, h2, h3, h4 {
+    letter-spacing: -0.015em;
+    line-height: 1.25;
+    font-weight: 600;
+  }
+
+  /* Every focusable thing gets the same clearly visible ring. */
+  :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 2px solid var(--accent-ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-xs);
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--accent-ring) 35%, transparent);
+    color: var(--ink);
+  }
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: var(--radius-full);
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: var(--ink-muted); background-clip: content-box; }
+
+  input, textarea, select, button { font: inherit; color: inherit; }
+
+  /* Number columns must align; prose must not. */
+  .tabular { font-variant-numeric: tabular-nums; }
+}
+
+/* --------------------------- utilities --------------------------- */
+
+@layer utilities {
+  .font-mono { font-family: var(--font-mono); }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+
+  .surface-grid {
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
+  /* Domain accent — set --dc once on a wrapper, read it anywhere inside. */
+  .dc-work     { --dc: var(--domain-work); }
+  .dc-fitness  { --dc: var(--domain-fitness); }
+  .dc-health   { --dc: var(--domain-health); }
+  .dc-learning { --dc: var(--domain-learning); }
+  .dc-personal { --dc: var(--domain-personal); }
+  .dc-finance  { --dc: var(--domain-finance); }
+  .dc-research { --dc: var(--domain-research); }
+  .dc-sports   { --dc: var(--domain-sports); }
+
+  .scrollbar-none { scrollbar-width: none; }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+}
+
+/* ---------------------------- motion ---------------------------- */
+
+@keyframes rt-fade-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes rt-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes rt-scale-in {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes rt-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.45; }
+}
+@keyframes rt-sweep {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(200%); }
+}
+
+.animate-fade-up  { animation: rt-fade-up var(--dur-slow) var(--ease-out) both; }
+.animate-fade     { animation: rt-fade var(--dur-base) var(--ease-out) both; }
+.animate-scale-in { animation: rt-scale-in var(--dur-base) var(--ease-spring) both; }
+.animate-pulse-dot { animation: rt-pulse 2s var(--ease-in-out) infinite; }
+
+/* Staggered grid entrance. Kept short on purpose: `both` fill mode holds an
+   item invisible until its delay elapses, so a long ramp reads as a slow page
+   rather than as motion. Last item is fully in by ~370ms. */
+.stagger > * { animation: rt-fade-up 280ms var(--ease-out) both; }
+.stagger > *:nth-child(1) { animation-delay: 0ms; }
+.stagger > *:nth-child(2) { animation-delay: 30ms; }
+.stagger > *:nth-child(3) { animation-delay: 60ms; }
+.stagger > *:nth-child(4) { animation-delay: 90ms; }
+.stagger > *:nth-child(n + 5) { animation-delay: 110ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

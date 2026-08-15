@@ -1,0 +1,44 @@
+# ---------------------------------------------------------------- deps
+node_modules/
+
+# --------------------------------------------------------------- build
+dist/
+*.tsbuildinfo
+.vite/
+
+# ---------------------------------------------------------------- data
+# Everything personal lives here: the SQLite database and the server's
+# HMAC key. It must never be committed.
+data/
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+.secret
+
+# ------------------------------------------------------------ generated
+# routine.ico IS committed — install-shortcuts.ps1 needs it and rebuilding
+# it requires Python + Pillow. Only the preview strip is disposable.
+assets/routine-icon-preview.png
+
+# ---------------------------------------------------------------- local
+.env
+.env.*
+!.env.example
+
+# ----------------------------------------------------------- logs/cache
+*.log
+npm-debug.log*
+yarn-error.log*
+.eslintcache
+
+# --------------------------------------------------------- editors / OS
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
