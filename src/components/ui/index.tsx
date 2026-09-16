@@ -278,13 +278,21 @@ export function Modal({
   const panelRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
 
+  // Every caller passes `onClose` as an inline arrow, so its identity changes on
+  // each render of the parent. Holding it in a ref lets the effect below depend
+  // on `open` alone. With `onClose` in the dependency array, typing a single
+  // character re-ran the effect, and its cleanup called `previous.focus()` —
+  // pulling focus out of the very field being typed in, one keystroke at a time.
+  const onCloseRef = useRef(onClose);
+  useEffect(() => { onCloseRef.current = onClose; });
+
   useEffect(() => {
     if (!open) return;
     const previous = document.activeElement as HTMLElement | null;
     document.body.style.overflow = 'hidden';
 
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') { e.stopPropagation(); onClose(); return; }
+      if (e.key === 'Escape') { e.stopPropagation(); onCloseRef.current(); return; }
       if (e.key !== 'Tab' || !panelRef.current) return;
       // Keep focus inside the dialog.
       const focusables = panelRef.current.querySelectorAll<HTMLElement>(
@@ -310,7 +318,7 @@ export function Modal({
       cancelAnimationFrame(raf);
       previous?.focus?.();
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
 
